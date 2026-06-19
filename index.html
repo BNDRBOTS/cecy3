@@ -686,42 +686,34 @@
             try {
                 const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 
-                const osc1 = ctx.createOscillator();
-                const gain1 = ctx.createGain();
-                const filter1 = ctx.createBiquadFilter();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
                 
-                osc1.type = 'sine';
-                osc1.frequency.value = 46;
-                filter1.type = 'lowpass';
-                filter1.frequency.value = 160;
-                gain1.gain.value = 0.18;
+                osc.type = 'sine';
+                osc.frequency.value = 51;           // Warm low pitch
                 
-                osc1.connect(filter1);
-                filter1.connect(gain1);
-                gain1.connect(ctx.destination);
+                filter.type = 'lowpass';
+                filter.frequency.value = 165;       // Soft warm roll-off
                 
-                osc1.start();
-                gain1.gain.setValueAtTime(0.18, ctx.currentTime);
-                gain1.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.78);
+                gain.gain.value = 0.0001;           // Start silent for smooth in
                 
-                setTimeout(() => {
-                    const osc2 = ctx.createOscillator();
-                    const gain2 = ctx.createGain();
-                    osc2.type = 'square';
-                    osc2.frequency.value = 880;
-                    gain2.gain.value = 0.028;
-                    
-                    osc2.connect(gain2);
-                    gain2.connect(ctx.destination);
-                    osc2.start();
-                    gain2.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.085);
-                    setTimeout(() => osc2.stop(), 110);
-                }, 165);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                
+                // Smooth warm glow in
+                gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.38);
+                
+                // Smooth warm glow out (long, gentle decay)
+                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.92);
                 
                 setTimeout(() => {
-                    osc1.stop();
+                    osc.stop();
                     ctx.close();
-                }, 820);
+                }, 2000);
             } catch(e) {}
         }
         
