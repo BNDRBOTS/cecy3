@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THE VEIL • PHOENIX</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap" rel="stylesheet">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&amp;display=swap');
+        
+        :root {
+            --font-primary: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+        
+        body {
+            font-family: var(--font-primary);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+        }
+        
+        .font-black {
+            font-weight: 900;
+            letter-spacing: -0.055em;
+        }
+        
+        .font-heavy {
+            font-weight: 700;
+            letter-spacing: -0.038em;
+        }
+        
+        .font-medium {
+            font-weight: 500;
+            letter-spacing: -0.015em;
+        }
+        
+        .font-light {
+            font-weight: 300;
+            letter-spacing: -0.028em;
+        }
+        
+        .tracking-premium {
+            letter-spacing: -0.04em;
+        }
+        
+        .tracking-brutal {
+            letter-spacing: -0.022em;
+        }
+        
+        .tracking-label {
+            letter-spacing: 0.085em;
+        }
+
+        /* DESERT — Nike campaign intensity + refined color theory */
+        .desert-bg {
+            background: linear-gradient(175deg, #F8F1E3 0%, #E8D9C2 22%, #C9A37E 48%, #6B4E3D 78%, #2C2522 100%);
+            position: relative;
+        }
+        
+        .desert-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 48% 18%, rgba(255, 240, 210, 0.45) 0%, transparent 55%),
+                radial-gradient(circle at 65% 72%, rgba(180, 120, 70, 0.18) 0%, transparent 50%);
+            pointer-events: none;
+        }
+        
+        .heat-shimmer {
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                82deg,
+                transparent,
+                transparent 1px,
+                rgba(255, 235, 180, 0.07) 1px,
+                rgba(255, 235, 180, 0.07) 3px
+            );
+            animation: heatShimmer 3.8s linear infinite;
+            pointer-events: none;
+            mix-blend-mode: soft-light;
+        }
+        
+        @keyframes heatShimmer {
+            0% { transform: translateX(-120%); }
+            100% { transform: translateX(280%); }
+        }
+        
+        .sun-glare {
+            position: absolute;
+            top: 14%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 210px;
+            height: 210px;
+            background: radial-gradient(circle, #FFF8E1 0%, #F5C16E 28%, transparent 68%);
+            border-radius: 9999px;
+            filter: blur(18px);
+            opacity: 0.55;
+            animation: glarePulse 7s ease-in-out infinite;
+            mix-blend-mode: screen;
+        }
+        
+        @keyframes glarePulse {
+            0%, 100% { opacity: 0.48; transform: translateX(-50%) scale(1); }
+            50% { opacity: 0.68; transform: translateX(-50%) scale(1.06); }
+        }
+        
+        .horizon-line {
+            position: absolute;
+            bottom: 21%;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, #3F2E26, transparent);
+            box-shadow: 0 0 30px rgba(63, 46, 38, 0.5);
+        }
+
+        /* SANCTUARY — Sony precision dark + refined cool accent */
+        .sanctuary-bg {
+            background: #050505;
+            position: relative;
+        }
+        
+        .sanctuary-bg::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: 
+                radial-gradient(circle at 28% 22%, rgba(20, 184, 166, 0.035) 0%, transparent 48%),
+                radial-gradient(circle at 72% 78%, rgba(52, 211, 153, 0.025) 0%, transparent 55%);
+            pointer-events: none;
+        }
+
+        .premium-shadow {
+            box-shadow: 
+                0 10px 30px -15px rgb(0 0 0 / 0.6),
+                inset 0 1px 0 rgb(255 255 255 / 0.04);
+        }
+
+        /* TRANSITION — Buttery violent seal */
+        .seal-door {
+            position: absolute;
+            inset: 0;
+            background: #000000;
+            z-index: 50;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 160ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .seal-door.flash {
+            background: #F8F1E3;
+            transition: opacity 65ms linear;
+        }
+        
+        .pressure-seal {
+            position: absolute;
+            inset: 0;
+            z-index: 60;
+            background: linear-gradient(
+                to right,
+                transparent 0%,
+                rgba(20, 184, 166, 0.12) 47%,
+                rgba(20, 184, 166, 0.22) 50%,
+                rgba(20, 184, 166, 0.12) 53%,
+                transparent 100%
+            );
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .pressure-seal.active {
+            animation: pressureSweep 420ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        
+        @keyframes pressureSweep {
+            0% { opacity: 0; transform: translateX(-55%); }
+            18% { opacity: 1; }
+            82% { opacity: 1; }
+            100% { opacity: 0; transform: translateX(155%); }
+        }
+        
+        .buttery-enter {
+            animation: butteryEnter 520ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+        }
+        
+        @keyframes butteryEnter {
+            from {
+                opacity: 0;
+                transform: scale(0.982) translateY(14px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        /* TYPOGRAPHY HIERARCHY — Nike/Sony precision */
+        .display {
+            font-weight: 900;
+            letter-spacing: -0.055em;
+            line-height: 0.88;
+        }
+        
+        .headline {
+            font-weight: 700;
+            letter-spacing: -0.038em;
+            line-height: 0.95;
+        }
+        
+        .relief {
+            font-weight: 300;
+            letter-spacing: -0.032em;
+            line-height: 0.92;
+        }
+        
+        .label {
+            font-weight: 600;
+            letter-spacing: 0.085em;
+            text-transform: uppercase;
+        }
+        
+        .body-premium {
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            line-height: 1.45;
+        }
+
+        /* KEY — Premium metallic */
+        .key-svg {
+            filter: drop-shadow(0 30px 35px rgb(0 0 0 / 0.55));
+            transition: transform 680ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .key-turn {
+            animation: premiumKeyTurn 780ms cubic-bezier(0.32, 0, 0.67, 1) forwards;
+        }
+        
+        @keyframes premiumKeyTurn {
+            0% { transform: rotate(0deg); }
+            22% { transform: rotate(-7deg); }
+            48% { transform: rotate(94deg); }
+            68% { transform: rotate(87deg); }
+            100% { transform: rotate(90deg); }
+        }
+
+        /* MATRIX — Sony-like precision */
+        .matrix-cell {
+            background: #050505;
+            transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .matrix-cell:hover {
+            background: #0C0C0C;
+        }
+
+        /* INPUTS — Buttery premium */
+        .concierge-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #2A2A2A;
+            color: #F1F1F1;
+            font-weight: 400;
+            font-size: 1.05rem;
+            padding-bottom: 0.4rem;
+            transition: border-color 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        
+        .concierge-input:focus {
+            outline: none;
+            border-bottom-color: #14B8A6;
+        }
+        
+        .concierge-input::placeholder {
+            color: #4A4A4A;
+            font-weight: 500;
+            letter-spacing: 0.065em;
+            text-transform: uppercase;
+            font-size: 0.72rem;
+        }
+
+        .premium-button {
+            transition: all 0.2s cubic-bezier(0.23, 1, 0.32, 1);
+            font-weight: 600;
+            letter-spacing: 0.045em;
+        }
+        
+        .premium-button:hover {
+            transform: translateY(-1px);
+        }
+        
+        .premium-button:active {
+            transform: translateY(0px);
+        }
+
+        .section {
+            transition: opacity 280ms cubic-bezier(0.23, 1, 0.32, 1), 
+                        transform 380ms cubic-bezier(0.23, 1, 0.32, 1);
+        }
+    </style>
+</head>
+<body class="bg-black text-[#F1F1F1] overflow-x-hidden">
+    
+    <!-- STAGE 1: DESERT EXPOSURE -->
+    <div id="stage1" class="section min-h-screen flex flex-col relative desert-bg">
+        <div class="heat-shimmer"></div>
+        <div class="sun-glare"></div>
+        <div class="horizon-line"></div>
+        
+        <div class="absolute top-9 left-9 z-20 flex items-center gap-x-2.5">
+            <div class="h-px w-5 bg-white/30"></div>
+            <span class="label text-[10px] text-white/50 tracking-[3px]">PHOENIX</span>
+        </div>
+        
+        <div class="flex-1 flex items-center justify-center px-6 relative z-10">
+            <div class="max-w-[980px] text-center">
+                <div class="mb-5">
+                    <span class="display text-[118px] md:text-[138px] text-[#1F1A17] leading-none tracking-[-0.06em]">115°</span>
+                </div>
+                
+                <div class="max-w-[420px] mx-auto">
+                    <p class="font-black text-[23px] md:text-[26px] text-[#1F1A17] tracking-[-0.035em] leading-none mb-3">
+                        THE HEAT DOES NOT NEGOTIATE.
+                    </p>
+                    <p class="text-[#3F2E26] text-[15px] font-medium tracking-[-0.01em]">
+                        There is no shade. No shelter. Only exposure.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="pb-14 px-6 relative z-20">
+            <div class="max-w-[380px] mx-auto text-center">
+                <button onclick="enterSanctuary()"
+                        class="premium-button group inline-flex items-center justify-center gap-x-4 px-10 py-[17px] border border-[#1F1A17]/40 hover:border-[#1F1A17]/70 active:border-[#1F1A17] rounded-none transition-all">
+                    <span class="label text-xs text-[#1F1A17]/90 group-hover:text-[#1F1A17] tracking-[2.5px]">SEAL THE DOOR</span>
+                </button>
+                
+                <p class="mt-5 text-[10px] text-[#3F2E26]/60 tracking-[2px] font-medium">PHOENIX • ARIZONA</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRANSITION OVERLAY -->
+    <div id="transition-overlay" class="fixed inset-0 z-[999] hidden">
+        <div id="seal-door" class="seal-door"></div>
+        <div id="pressure-seal" class="pressure-seal"></div>
+    </div>
+
+    <!-- STAGE 2: SANCTUARY -->
+    <div id="stage2" class="section hidden min-h-screen sanctuary-bg flex flex-col">
+        <div class="h-px w-full bg-white/10"></div>
+        
+        <div class="flex-1 flex flex-col px-8 pt-9 pb-8 max-w-[1080px] mx-auto w-full">
+            
+            <div class="flex items-center justify-between mb-10">
+                <div>
+                    <span class="font-black text-4xl tracking-[-0.04em]">THE VEIL</span>
+                </div>
+                <div class="flex items-center gap-x-2">
+                    <div class="px-3 py-1 border border-white/10 rounded text-[10px] font-medium tracking-[2px] text-[#14B8A6]">SEALED</div>
+                </div>
+            </div>
+            
+            <!-- Physical relief copy — buttery elegant -->
+            <div class="mb-9">
+                <div class="space-y-[-2px]">
+                    <div class="relief text-[58px] md:text-[72px] leading-[0.9] text-white tracking-[-0.035em]">Ice cold air.</div>
+                    <div class="relief text-[58px] md:text-[72px] leading-[0.9] text-white/90 tracking-[-0.035em]">Memory foam.</div>
+                    <div class="relief text-[58px] md:text-[72px] leading-[0.9] text-white/75 tracking-[-0.035em]">No street noise.</div>
+                </div>
+                <div class="mt-4">
+                    <span class="label text-xs text-[#14B8A6] tracking-[2.5px]">68° CONSTANT • ZERO VIBRATION</span>
+                </div>
+            </div>
+            
+            <!-- Physical facts grid — Sony precision -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 mb-10">
+                <div class="bg-[#050505] p-7 premium-shadow">
+                    <div class="label text-[10px] text-[#14B8A6] mb-4 tracking-[2px]">TEMPERATURE</div>
+                    <div class="font-black text-[42px] leading-none tracking-[-0.04em] text-white">68°<span class="text-2xl align-super text-white/40">F</span></div>
+                    <div class="mt-4 text-[13.5px] text-white/70 body-premium">The air meets your skin before your eyes adjust. Your shoulders drop 14 millimeters.</div>
+                </div>
+                <div class="bg-[#050505] p-7 premium-shadow">
+                    <div class="label text-[10px] text-[#14B8A6] mb-4 tracking-[2px]">SOUND</div>
+                    <div class="font-black text-[42px] leading-none tracking-[-0.04em] text-white">0<span class="text-2xl align-super text-white/40">dB</span></div>
+                    <div class="mt-4 text-[13.5px] text-white/70 body-premium">400mm concrete. No neighbors above. No neighbors below. Your pulse is the loudest sound.</div>
+                </div>
+                <div class="bg-[#050505] p-7 premium-shadow">
+                    <div class="label text-[10px] text-[#14B8A6] mb-4 tracking-[2px]">LIGHT</div>
+                    <div class="font-black text-[42px] leading-none tracking-[-0.04em] text-white">ZERO</div>
+                    <div class="mt-4 text-[13.5px] text-white/70 body-premium">Full blackout. One controlled slit. You decide when the desert is allowed back in.</div>
+                </div>
+            </div>
+            
+            <div class="max-w-[520px]">
+                <div class="flex items-end gap-x-3 mb-3">
+                    <span class="font-black text-2xl tracking-[-0.025em]">THE MICRO-HOME</span>
+                    <span class="text-xs text-white/40 pb-1 font-medium tracking-[1.5px]">400 SQ FT • ONE BODY</span>
+                </div>
+                <p class="text-[14.5px] text-white/75 body-premium leading-snug">
+                    Thick walls. Cool concrete under bare feet. A bed that remembers nothing. 
+                    A door that weighs 180 pounds. Close it once. The heat stays outside forever.
+                </p>
+                
+                <button onclick="goToKey()"
+                        class="premium-button mt-8 inline-flex items-center justify-center gap-x-3 px-9 py-[15px] bg-white text-black hover:bg-[#14B8A6] hover:text-white active:bg-[#0F9A8A] font-semibold tracking-[1.5px] text-xs rounded-none">
+                    RECEIVE THE KEY
+                </button>
+            </div>
+        </div>
+        
+        <div class="h-12 border-t border-white/10 flex items-center px-8 text-[10px] text-white/40 tracking-[1.5px] font-medium">
+            <div class="flex-1">THE VEIL • PHOENIX MICRO-HOME COMMUNITY</div>
+            <div>THE SEAL HOLDS</div>
+        </div>
+    </div>
+
+    <!-- STAGE 3: THE KEY -->
+    <div id="stage3" class="section hidden min-h-screen sanctuary-bg flex flex-col">
+        <div class="h-px w-full bg-white/10"></div>
+        
+        <div class="flex-1 px-8 pt-9 pb-6 max-w-[1100px] mx-auto w-full">
+            
+            <div class="flex justify-between items-start mb-9">
+                <div>
+                    <span class="font-black text-[42px] tracking-[-0.04em]">THE KEY</span>
+                    <p class="text-[#14B8A6] text-xs font-semibold tracking-[2.5px] mt-1">HAND THIS TO THE CONCIERGE</p>
+                </div>
+                <button onclick="resetToDesert()" 
+                        class="text-xs font-medium tracking-[1.5px] text-white/50 hover:text-white/80 flex items-center gap-x-2 transition-colors">
+                    EXIT THE SEAL
+                </button>
+            </div>
+            
+            <div class="flex flex-col lg:flex-row gap-x-14 gap-y-10 items-start">
+                
+                <!-- Premium Brass Key -->
+                <div class="flex-shrink-0 pt-2">
+                    <div class="relative">
+                        <svg id="brass-key" width="255" height="335" viewBox="0 0 255 335" fill="none" xmlns="http://www.w3.org/2000/svg" class="key-svg">
+                            <path d="M82 292 Q 90 320 120 320 Q 150 320 158 292" fill="#000000" opacity="0.4"/>
+                            <rect x="103" y="92" width="24" height="198" rx="2" fill="#B8860B"/>
+                            <rect x="105" y="92" width="20" height="198" rx="1" fill="#D4A017"/>
+                            <circle cx="115" cy="68" r="42" fill="#B8860B"/>
+                            <circle cx="115" cy="68" r="34" fill="#D4A017"/>
+                            <circle cx="115" cy="68" r="25" fill="#8B6914"/>
+                            <circle cx="115" cy="68" r="15" fill="#B8860B"/>
+                            <circle cx="115" cy="68" r="8.5" fill="#2C2522"/>
+                            <rect x="103" y="92" width="3.5" height="198" fill="#E8C56B" opacity="0.28"/>
+                            <circle cx="115" cy="68" r="42" fill="none" stroke="#E8C56B" stroke-width="1.25" opacity="0.2"/>
+                            <rect x="103" y="275" width="24" height="15" fill="#8B6914"/>
+                            <rect x="103" y="290" width="11" height="12" fill="#8B6914"/>
+                            <rect x="115" y="290" width="12" height="12" fill="#8B6914"/>
+                            <text x="115" y="74" font-family="Inter, system-ui" font-size="9.5" fill="#2C2522" text-anchor="middle" font-weight="700">472</text>
+                        </svg>
+                        
+                        <div class="text-center mt-1.5">
+                            <span id="key-status" class="font-medium text-xs tracking-[2.5px] text-[#14B8A6]/70">HEAVY • PRECISION • YOURS</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex-1 max-w-[460px] pt-4">
+                    <div class="mb-7">
+                        <div class="label text-xs text-[#14B8A6] tracking-[2.5px] mb-1.5">THE RITUAL</div>
+                        <div class="font-black text-[29px] tracking-[-0.03em] leading-none">Hand the key.<br>Receive the seal.</div>
+                    </div>
+                    
+                    <div class="space-y-7">
+                        <div>
+                            <div class="label text-[10px] text-white/50 tracking-[2px] mb-2.5">WHEN DO YOU NEED RELIEF?</div>
+                            <div class="grid grid-cols-2 gap-5">
+                                <div>
+                                    <div class="text-xs text-white/40 mb-1.5 font-medium tracking-wider">ARRIVAL</div>
+                                    <input type="date" id="arrival-date" value="2026-07-12" class="concierge-input w-full text-[17px]">
+                                </div>
+                                <div>
+                                    <div class="text-xs text-white/40 mb-1.5 font-medium tracking-wider">DEPARTURE</div>
+                                    <input type="date" id="departure-date" value="2026-07-15" class="concierge-input w-full text-[17px]">
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <div class="label text-[10px] text-white/50 tracking-[2px] mb-2.5">WHO RECEIVES THE KEY?</div>
+                            <input type="text" id="guest-name" placeholder="YOUR NAME" value="SCOTT" class="concierge-input w-full text-[19px]">
+                        </div>
+                        
+                        <div class="flex items-baseline gap-x-3 pt-1">
+                            <div>
+                                <span id="nights-count" class="font-black text-[56px] tracking-[-0.045em] leading-none">3</span>
+                                <span class="font-medium text-xs text-white/50 tracking-[1.5px] ml-1.5">NIGHTS</span>
+                            </div>
+                            <div class="text-xs text-[#14B8A6]/70 font-medium tracking-wider">ONE BODY • ONE KEY</div>
+                        </div>
+                    </div>
+                    
+                    <div class="pt-8">
+                        <button onclick="engageKey()"
+                                class="premium-button w-full flex items-center justify-center gap-x-3 bg-white hover:bg-[#14B8A6] active:bg-[#0F9A8A] text-black py-[17px] font-semibold tracking-[2px] text-xs rounded-none">
+                            <span>TURN THE KEY</span>
+                        </button>
+                        <p class="text-center text-[10px] text-white/40 mt-3 tracking-[1.5px] font-medium">THE SEAL ENGAGES THE MOMENT YOU TURN</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Airtight Matrix -->
+            <div class="mt-16">
+                <div class="label text-xs text-white/50 tracking-[2.5px] mb-4">THE MATRIX • AIRTIGHT</div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-white/10 p-px">
+                    <div class="matrix-cell p-7 border border-white/10">
+                        <div class="flex items-center gap-x-3 mb-5">
+                            <span class="font-black text-sm tracking-[-0.01em]">PRIVACY</span>
+                            <div class="flex-1 h-px bg-white/10"></div>
+                        </div>
+                        <div class="space-y-3 text-[13.5px] text-white/75 leading-snug">
+                            <div>No cameras. Inside or out.</div>
+                            <div>No data is ever shared.</div>
+                            <div>Your name exists only with the key.</div>
+                            <div class="text-[#14B8A6]/80 text-xs pt-1">You exist here only as long as you choose to stay.</div>
+                        </div>
+                    </div>
+                    
+                    <div class="matrix-cell p-7 border border-white/10">
+                        <div class="flex items-center gap-x-3 mb-5">
+                            <span class="font-black text-sm tracking-[-0.01em]">CANCELLATION</span>
+                            <div class="flex-1 h-px bg-white/10"></div>
+                        </div>
+                        <div class="space-y-3 text-[13.5px] text-white/75 leading-snug">
+                            <div>Cancel before 2pm the day prior — full refund to original key.</div>
+                            <div>No questions asked. No penalties.</div>
+                            <div>No-show: the key is returned clean.</div>
+                            <div class="text-[#14B8A6]/80 text-xs pt-1">The seal releases. You walk away without friction.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="h-12 border-t border-white/10 flex items-center px-8 text-[10px] text-white/35 tracking-[2px] font-medium">
+            THE VEIL • 400 SQ FT MICRO-HOMES • PHOENIX, ARIZONA
+        </div>
+    </div>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" onclick="if (event.target.id === 'confirmation-modal') closeConfirmation()" 
+         class="hidden fixed inset-0 z-[200] bg-black/95 flex items-center justify-center p-6">
+        <div onclick="event.stopImmediatePropagation()" 
+             class="max-w-md w-full bg-[#050505] border border-white/10 p-9 premium-shadow">
+            
+            <div class="text-center">
+                <div class="mx-auto w-8 h-px bg-[#14B8A6] mb-6"></div>
+                
+                <div class="font-black text-5xl tracking-[-0.04em] mb-px">THE SEAL</div>
+                <div class="text-[#14B8A6] text-xs font-semibold tracking-[3px]">IS ENGAGED</div>
+                
+                <div class="my-9 space-y-px text-left max-w-[270px] mx-auto text-sm">
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50">KEY</span>
+                        <span id="confirm-key" class="font-medium tracking-wider">#472</span>
+                    </div>
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50">NAME</span>
+                        <span id="confirm-name" class="font-medium"></span>
+                    </div>
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50">ARRIVAL</span>
+                        <span id="confirm-arrival" class="font-mono text-xs"></span>
+                    </div>
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50">DEPARTURE</span>
+                        <span id="confirm-departure" class="font-mono text-xs"></span>
+                    </div>
+                    <div class="flex justify-between py-[9px]">
+                        <span class="text-white/50">NIGHTS</span>
+                        <span id="confirm-nights" class="font-medium"></span>
+                    </div>
+                </div>
+                
+                <div class="text-xs text-white/55 leading-tight mb-8">
+                    The door has sealed behind you.<br>
+                    68° is now the only temperature that exists.
+                </div>
+                
+                <button onclick="closeConfirmation()" 
+                        class="w-full py-3.5 text-xs font-semibold tracking-[2px] border border-white/30 hover:bg-white hover:text-black active:bg-white/90 transition-all">
+                    RETURN TO THE QUIET
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function initializeTailwind() {
+            const style = document.createElement('style');
+            style.innerHTML = `.concierge-input { font-feature-settings: "kern" "tnum"; }`;
+            document.head.appendChild(style);
+        }
+        
+        function calculateNights() {
+            const arrival = document.getElementById('arrival-date');
+            const departure = document.getElementById('departure-date');
+            const nightsEl = document.getElementById('nights-count');
+            
+            if (!arrival || !departure || !nightsEl) return;
+            
+            function updateNights() {
+                const start = new Date(arrival.value);
+                const end = new Date(departure.value);
+                
+                if (start && end && end > start) {
+                    const diff = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+                    nightsEl.textContent = diff;
+                } else {
+                    nightsEl.textContent = '—';
+                }
+            }
+            
+            arrival.addEventListener('change', updateNights);
+            departure.addEventListener('change', updateNights);
+            setTimeout(updateNights, 60);
+        }
+        
+        function enterSanctuary() {
+            const stage1 = document.getElementById('stage1');
+            const stage2 = document.getElementById('stage2');
+            const overlay = document.getElementById('transition-overlay');
+            const sealDoor = document.getElementById('seal-door');
+            const pressureSeal = document.getElementById('pressure-seal');
+            
+            overlay.style.display = 'block';
+            overlay.classList.remove('hidden');
+            
+            sealDoor.classList.add('flash');
+            sealDoor.style.transition = 'opacity 65ms linear';
+            sealDoor.style.opacity = '0.9';
+            
+            setTimeout(() => {
+                sealDoor.classList.remove('flash');
+                sealDoor.style.transition = 'opacity 150ms cubic-bezier(0.23, 1, 0.32, 1)';
+                sealDoor.style.background = '#000000';
+                sealDoor.style.opacity = '1';
+                
+                pressureSeal.classList.add('active');
+                playPremiumSealSound();
+            }, 95);
+            
+            setTimeout(() => {
+                stage1.style.transition = 'opacity 70ms linear';
+                stage1.style.opacity = '0';
+                
+                setTimeout(() => {
+                    stage1.classList.add('hidden');
+                    stage1.style.transition = '';
+                    stage1.style.opacity = '1';
+                    
+                    stage2.classList.remove('hidden');
+                    stage2.style.opacity = '0';
+                    stage2.style.transform = 'scale(0.985) translateY(12px)';
+                    
+                    requestAnimationFrame(() => {
+                        stage2.style.transition = 'opacity 420ms cubic-bezier(0.23, 1, 0.32, 1), transform 520ms cubic-bezier(0.23, 1, 0.32, 1)';
+                        stage2.style.opacity = '1';
+                        stage2.style.transform = 'scale(1) translateY(0)';
+                        stage2.classList.add('buttery-enter');
+                        
+                        setTimeout(() => {
+                            stage2.classList.remove('buttery-enter');
+                            overlay.style.display = 'none';
+                            overlay.classList.add('hidden');
+                            sealDoor.style.opacity = '0';
+                            pressureSeal.classList.remove('active');
+                        }, 320);
+                    });
+                }, 75);
+            }, 360);
+        }
+        
+        function playPremiumSealSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                
+                osc.type = 'sine';
+                osc.frequency.value = 51;           // Warm low pitch
+                
+                filter.type = 'lowpass';
+                filter.frequency.value = 165;       // Soft warm roll-off
+                
+                gain.gain.value = 0.0001;           // Start silent for smooth in
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                
+                // Smooth warm glow in
+                gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.38);
+                
+                // Smooth warm glow out (long, gentle decay)
+                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.92);
+                
+                setTimeout(() => {
+                    osc.stop();
+                    ctx.close();
+                }, 2000);
+            } catch(e) {}
+        }
+        
+        function goToKey() {
+            const stage2 = document.getElementById('stage2');
+            const stage3 = document.getElementById('stage3');
+            
+            stage2.style.transition = 'opacity 220ms cubic-bezier(0.23, 1, 0.32, 1), transform 280ms cubic-bezier(0.23, 1, 0.32, 1)';
+            stage2.style.opacity = '0';
+            stage2.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                stage2.classList.add('hidden');
+                stage2.style.transition = '';
+                stage2.style.transform = '';
+                stage2.style.opacity = '1';
+                
+                stage3.classList.remove('hidden');
+                stage3.style.opacity = '0';
+                stage3.style.transform = 'translateY(16px)';
+                
+                requestAnimationFrame(() => {
+                    stage3.style.transition = 'opacity 380ms cubic-bezier(0.23, 1, 0.32, 1), transform 420ms cubic-bezier(0.23, 1, 0.32, 1)';
+                    stage3.style.opacity = '1';
+                    stage3.style.transform = 'translateY(0)';
+                });
+            }, 240);
+        }
+        
+        function engageKey() {
+            const key = document.getElementById('brass-key');
+            const status = document.getElementById('key-status');
+            
+            if (!key) return;
+            
+            const turnBtn = event.currentTarget;
+            if (turnBtn) turnBtn.disabled = true;
+            
+            key.classList.add('key-turn');
+            status.textContent = 'ENGAGING • PRECISION SEAL';
+            status.style.color = '#14B8A6';
+            
+            setTimeout(() => {
+                try {
+                    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    const filter = ctx.createBiquadFilter();
+                    
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = 58;
+                    filter.type = 'bandpass';
+                    filter.frequency.value = 380;
+                    filter.Q.value = 3.5;
+                    gain.gain.value = 0.045;
+                    
+                    osc.connect(filter);
+                    filter.connect(gain);
+                    gain.connect(ctx.destination);
+                    
+                    osc.start();
+                    gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.62);
+                    
+                    setTimeout(() => {
+                        osc.stop();
+                        ctx.close();
+                    }, 680);
+                } catch(e){}
+            }, 130);
+            
+            setTimeout(() => {
+                showConfirmation();
+                key.classList.remove('key-turn');
+                status.textContent = 'SEALED • HOLDING';
+                status.style.color = '#14B8A6';
+                if (turnBtn) turnBtn.disabled = false;
+            }, 820);
+        }
+        
+        function showConfirmation() {
+            const modal = document.getElementById('confirmation-modal');
+            const name = document.getElementById('guest-name').value || 'GUEST';
+            const arrival = document.getElementById('arrival-date').value;
+            const departure = document.getElementById('departure-date').value;
+            const nights = document.getElementById('nights-count').textContent;
+            
+            document.getElementById('confirm-name').textContent = name.toUpperCase();
+            document.getElementById('confirm-arrival').textContent = arrival;
+            document.getElementById('confirm-departure').textContent = departure;
+            document.getElementById('confirm-nights').textContent = nights + ' NIGHTS';
+            
+            modal.style.display = 'flex';
+            modal.classList.remove('hidden');
+        }
+        
+        function closeConfirmation() {
+            const modal = document.getElementById('confirmation-modal');
+            modal.style.transition = 'opacity 160ms ease';
+            modal.style.opacity = '0';
+            
+            setTimeout(() => {
+                modal.style.display = 'none';
+                modal.style.transition = '';
+                modal.style.opacity = '1';
+                modal.classList.add('hidden');
+            }, 160);
+        }
+        
+        function resetToDesert() {
+            const stage2 = document.getElementById('stage2');
+            const stage3 = document.getElementById('stage3');
+            const stage1 = document.getElementById('stage1');
+            
+            stage3.style.transition = 'opacity 180ms ease';
+            stage3.style.opacity = '0';
+            
+            setTimeout(() => {
+                stage3.classList.add('hidden');
+                stage3.style.transition = '';
+                stage3.style.opacity = '1';
+                
+                stage2.classList.add('hidden');
+                
+                stage1.classList.remove('hidden');
+                stage1.style.transition = 'opacity 360ms cubic-bezier(0.23, 1, 0.32, 1)';
+                stage1.style.opacity = '0';
+                
+                requestAnimationFrame(() => {
+                    stage1.style.opacity = '1';
+                    setTimeout(() => stage1.style.transition = '', 380);
+                });
+            }, 200);
+        }
+        
+        function setupKeyboard() {
+            document.addEventListener('keydown', function(e) {
+                if (e.key === '/' && !document.getElementById('stage1').classList.contains('hidden')) {
+                    e.preventDefault();
+                    enterSanctuary();
+                }
+                if ((e.key.toLowerCase() === 'k') && !document.getElementById('stage3').classList.contains('hidden')) {
+                    e.preventDefault();
+                    engageKey();
+                }
+                if (e.key === 'Escape') {
+                    const modal = document.getElementById('confirmation-modal');
+                    if (modal.style.display === 'flex') {
+                        closeConfirmation();
+                    } else if (!document.getElementById('stage3').classList.contains('hidden')) {
+                        resetToDesert();
+                    }
+                }
+            });
+        }
+        
+        function initialize() {
+            initializeTailwind();
+            calculateNights();
+            setupKeyboard();
+            
+            const glare = document.querySelector('.sun-glare');
+            if (glare) {
+                glare.addEventListener('click', () => {
+                    glare.style.transition = 'filter 50ms linear, opacity 50ms';
+                    glare.style.filter = 'blur(6px)';
+                    glare.style.opacity = '0.85';
+                    
+                    setTimeout(() => {
+                        glare.style.transition = 'filter 1400ms cubic-bezier(0.23, 1, 0.32, 1), opacity 900ms ease';
+                        glare.style.filter = 'blur(18px)';
+                        glare.style.opacity = '0.55';
+                    }, 80);
+                });
+            }
+            
+            console.log('%c[THE VEIL] Bleeding-edge premium build — Nike × Sony color theory + buttery interactions. All functions preserved.', 'color:#1F1F1F');
+        }
+        
+        window.onload = initialize;
+    </script>
+</body>
+</html>
