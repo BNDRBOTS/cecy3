@@ -1,13 +1,804 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>The Veil • Phoenix</title>
+    
+    <!-- SEO & Meta Data -->
+    <meta name="description" content="The Veil • Phoenix. Luxury micro-homes in the heart of the desert. 68° constant, zero vibration, complete sanctuary.">
+    <meta name="keywords" content="micro-homes, Phoenix, luxury, sanctuary, desert, architecture, The Veil, premium housing">
+    <meta name="author" content="The Veil">
+    <meta name="robots" content="index, follow">
+    
+    <!-- Open Graph / Social -->
+    <meta property="og:title" content="The Veil • Phoenix">
+    <meta property="og:description" content="Experience absolute quiet and 68° constant temperature in our luxury micro-homes. The heat does not negotiate.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="The Veil • Phoenix">
+    <meta name="twitter:description" content="Luxury micro-homes. 68° constant. Zero vibration.">
+    
+    <!-- Preloading & Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" as="style">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+    
+    <!-- Three.js -->
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" as="script">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <style>
+        :root {
+            --font-primary: 'Inter', system-ui, sans-serif;
+        }
+
+        html, body {
+            font-family: var(--font-primary);
+            margin: 0;
+            padding: 0;
+            background: #050505;
+            -webkit-font-smoothing: antialiased;
+            overscroll-behavior: none;
+            color: #F1F1F1;
+        }
+
+        ::selection {
+            background-color: #14B8A6;
+            color: #000000;
+        }
+
+        .premium-shadow {
+            box-shadow: 0 20px 40px -15px rgb(0 0 0 / 0.8), inset 0 1px 0 rgb(255 255 255 / 0.05);
+        }
+
+        .concierge-input {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #2A2A2A;
+            color: #F1F1F1;
+            font-feature-settings: "kern" "tnum";
+            border-radius: 0;
+            -webkit-appearance: none;
+        }
+
+        .concierge-input:focus {
+            outline: none;
+            border-bottom-color: #14B8A6;
+        }
+
+        /* SVG Key Transition */
+        .key-svg {
+            transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .key-turn {
+            transform: rotate(90deg) scale(1.02);
+            filter: drop-shadow(0 40px 45px rgb(20 184 166 / 0.25));
+        }
+
+        /* Kinetic Text Reveals */
+        .kinetic-text {
+            transform: translateY(24px) scale(0.98);
+            opacity: 0;
+            will-change: transform, opacity;
+        }
+        
+        .kinetic-text.is-visible {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+
+        /* Loading Screen Transitions */
+        #loader-screen {
+            transition: transform 1000ms cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        /* Modal Transitions */
+        #confirmation-modal {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 300ms ease;
+        }
+        #confirmation-modal.is-active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="sr-only">
+        <h1>The Veil • Phoenix - Luxury Micro-Homes</h1>
+        <p>There is no shade. No shelter. Only exposure. Seal the door and experience absolute quiet.</p>
+    </header>
+
+    <!-- Invisible Scroll Spacer to allow native scrolling mechanisms to work -->
+    <div id="scroll-spacer" class="absolute top-0 left-0 w-full opacity-0 pointer-events-none -z-10"></div>
+
+    <main class="fixed inset-0 w-full overflow-hidden bg-[#050505]">
+        
+        <!-- Loader Screen -->
+        <div id="loader-screen" class="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#050505] text-[#14B8A6] translate-y-0 pointer-events-auto">
+            <div class="w-full max-w-[200px] text-center">
+                <div class="text-[10px] tracking-[3px] font-bold mb-4 uppercase">Initializing Environment</div>
+                <div class="h-px w-full bg-white/10 relative overflow-hidden">
+                    <div id="loader-progress" class="absolute top-0 left-0 bottom-0 bg-[#14B8A6] transition-all duration-150 ease-out" style="width: 0%;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WebGL Background Container -->
+        <div id="shader-container" class="absolute inset-0 z-0 pointer-events-none mix-blend-screen opacity-60"></div>
+
+        <!-- Smooth Scroll Content -->
+        <div id="scroll-content" class="absolute top-0 left-0 w-full flex flex-col will-change-transform z-10">
+            
+            <!-- STAGE 1: DESERT EXPOSURE -->
+            <section class="h-[100dvh] w-full flex flex-col justify-center px-4 md:px-16 lg:px-32 relative shrink-0">
+                <div class="absolute top-6 left-6 md:top-9 md:left-9 z-20 flex items-center gap-x-2.5">
+                    <div class="h-px w-5 bg-black/30"></div>
+                    <span class="text-[9px] md:text-[10px] text-black/60 tracking-[3px] font-bold uppercase">Phoenix</span>
+                </div>
+
+                <div class="max-w-[980px] mx-auto text-center relative z-10 w-full">
+                    <h2 class="kinetic-text text-8xl sm:text-[100px] md:text-[138px] font-black leading-none text-[#1F1A17] tracking-[-0.06em] mb-4 md:mb-5" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0s;">
+                        115°
+                    </h2>
+                    <div class="max-w-[420px] mx-auto px-4">
+                        <p class="kinetic-text font-black text-xl md:text-[26px] text-[#1F1A17] tracking-[-0.035em] leading-tight md:leading-none mb-2 md:mb-3" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;">
+                            The Same Sun That Bakes The Earth Warms The Welcome..
+                        </p>
+                        <p class="kinetic-text text-[#3F2E26] text-sm md:text-[15px] font-medium tracking-[-0.01em]" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;">
+                            Neighbors Meet In The Shade. Doors Stay Open. Heat Becomes The Reason We Gather.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="absolute bottom-10 left-0 right-0 px-6 z-20 text-center">
+                    <div class="text-[9px] md:text-[10px] text-[#3F2E26]/70 tracking-[2px] font-bold uppercase">Scroll to enter</div>
+                </div>
+            </section>
+
+            <!-- STAGE 2: SANCTUARY -->
+            <section class="min-h-[100dvh] w-full flex flex-col px-4 sm:px-6 md:px-8 pt-20 md:pt-24 pb-12 max-w-[1080px] mx-auto relative shrink-0">
+                <div class="flex items-center justify-between mb-8 md:mb-10 w-full">
+                    <span class="kinetic-text font-black text-3xl md:text-4xl tracking-[-0.04em] text-white" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0s;">THE VEIL</span>
+                    <div class="px-3 py-1 border border-white/10 rounded text-[9px] md:text-[10px] font-bold tracking-[2px] text-[#14B8A6] uppercase">Sealed</div>
+                </div>
+
+                <div class="mb-12 md:mb-16 w-full">
+                    <div class="space-y-[-2px]">
+                        <span class="kinetic-text block font-light text-4xl sm:text-[50px] md:text-[72px] leading-[1.1] md:leading-[0.9] text-white tracking-[-0.035em]" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;">Ice cold air.</span>
+                        <span class="kinetic-text block font-light text-4xl sm:text-[50px] md:text-[72px] leading-[1.1] md:leading-[0.9] text-white/90 tracking-[-0.035em]" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;">Memory foam.</span>
+                        <span class="kinetic-text block font-light text-4xl sm:text-[50px] md:text-[72px] leading-[1.1] md:leading-[0.9] text-white/75 tracking-[-0.035em]" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;">No street noise.</span>
+                    </div>
+                    <span class="kinetic-text block mt-6 text-[10px] md:text-xs text-[#14B8A6] font-bold tracking-[2.5px] uppercase" style="transition: transform 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s, opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1) 0.3s;">
+                        68° CONSTANT • ZERO VIBRATION
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-white/5 mb-16 w-full">
+                    <div class="bg-[#050505] p-6 md:p-7 premium-shadow">
+                        <div class="text-[9px] md:text-[10px] text-[#14B8A6] font-bold mb-4 tracking-[2px] uppercase">Temperature</div>
+                        <div class="font-black text-3xl md:text-[42px] leading-none tracking-[-0.04em] text-white">68°<span class="text-lg md:text-2xl align-super text-white/40">F</span></div>
+                        <div class="mt-3 md:mt-4 text-xs md:text-[13.5px] text-white/70 tracking-[-0.011em] leading-relaxed">The air meets your skin before your eyes adjust. Your shoulders drop 14 millimeters.</div>
+                    </div>
+                    <div class="bg-[#050505] p-6 md:p-7 premium-shadow">
+                        <div class="text-[9px] md:text-[10px] text-[#14B8A6] font-bold mb-4 tracking-[2px] uppercase">Sound</div>
+                        <div class="font-black text-3xl md:text-[42px] leading-none tracking-[-0.04em] text-white">0<span class="text-lg md:text-2xl align-super text-white/40">dB</span></div>
+                        <div class="mt-3 md:mt-4 text-xs md:text-[13.5px] text-white/70 tracking-[-0.011em] leading-relaxed">400mm concrete. No neighbors above. No neighbors below. Your pulse is the loudest sound.</div>
+                    </div>
+                    <div class="bg-[#050505] p-6 md:p-7 premium-shadow">
+                        <div class="text-[9px] md:text-[10px] text-[#14B8A6] font-bold mb-4 tracking-[2px] uppercase">Light</div>
+                        <div class="font-black text-3xl md:text-[42px] leading-none tracking-[-0.04em] text-white">ZERO</div>
+                        <div class="mt-3 md:mt-4 text-xs md:text-[13.5px] text-white/70 tracking-[-0.011em] leading-relaxed">Full blackout. One controlled slit. You decide when the desert is allowed back in.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STAGE 3: THE KEY -->
+            <section class="min-h-[100dvh] w-full flex flex-col px-4 sm:px-6 md:px-8 pt-20 md:pt-24 pb-12 max-w-[1100px] mx-auto relative border-t border-white/10 shrink-0">
+                <div class="flex justify-between items-start mb-12 md:mb-16 w-full">
+                    <div>
+                        <span class="font-black text-3xl md:text-[42px] tracking-[-0.04em]">THE KEY</span>
+                        <p class="text-[#14B8A6] text-[10px] md:text-xs font-bold tracking-[2.5px] mt-1.5 uppercase">Hand this to the concierge</p>
+                    </div>
+                </div>
+
+                <div class="flex flex-col lg:flex-row gap-x-14 gap-y-16 items-start w-full">
+                    
+                    <!-- SVG Key Block -->
+                    <div class="flex-shrink-0 pt-2 w-full lg:w-auto flex flex-col items-center">
+                        <div class="relative">
+                            <svg id="the-key-svg" viewBox="0 0 200 400" class="key-svg w-full max-w-[110px] md:max-w-[140px] drop-shadow-2xl" fill="none" aria-label="Premium Brass Key">
+                                <defs>
+                                    <linearGradient id="brass-main" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#E6C875" />
+                                        <stop offset="20%" stop-color="#C59B45" />
+                                        <stop offset="50%" stop-color="#F8E596" />
+                                        <stop offset="80%" stop-color="#966C23" />
+                                        <stop offset="100%" stop-color="#D4AF37" />
+                                    </linearGradient>
+                                    <linearGradient id="brass-edge" x1="0%" y1="0%" x2="100%" y2="0%">
+                                        <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+                                        <stop offset="30%" stop-color="#E6C875" stop-opacity="0"/>
+                                        <stop offset="70%" stop-color="#966C23" stop-opacity="0"/>
+                                        <stop offset="100%" stop-color="#4A340C" stop-opacity="0.9"/>
+                                    </linearGradient>
+                                    <linearGradient id="brass-dark" x1="0%" y1="0%" x2="0%" y2="100%">
+                                        <stop offset="0%" stop-color="#3d2a0d" />
+                                        <stop offset="50%" stop-color="#aa7c11" />
+                                        <stop offset="100%" stop-color="#1a1103" />
+                                    </linearGradient>
+                                    <filter id="inner-bevel">
+                                        <feOffset dx="1" dy="2"/>
+                                        <feGaussianBlur stdDeviation="1.5" result="offset-blur"/>
+                                        <feComposite operator="out" in="SourceGraphic" in2="offset-blur" result="inverse"/>
+                                        <feFlood flood-color="black" flood-opacity="0.9" result="color"/>
+                                        <feComposite operator="in" in="color" in2="inverse" result="shadow"/>
+                                        <feComposite operator="over" in="shadow" in2="SourceGraphic"/>
+                                    </filter>
+                                </defs>
+                                
+                                <path d="M85 90 h 30 v 260 h -30 z" fill="#000" opacity="0.4" transform="translate(8, 16) blur(4px)"/>
+                                <circle cx="100" cy="80" r="60" fill="#000" opacity="0.4" transform="translate(8, 16) blur(4px)"/>
+
+                                <rect x="85" y="100" width="30" height="260" fill="url(#brass-main)" rx="3" />
+                                <rect x="85" y="100" width="30" height="260" fill="url(#brass-edge)" rx="3" />
+                                
+                                <rect x="94" y="110" width="4" height="240" fill="url(#brass-dark)" rx="2" filter="url(#inner-bevel)" opacity="0.8" />
+                                
+                                <path d="M115 310 h 42 v 8 h -12 v 6 h 12 v 10 h -42 z" fill="url(#brass-main)" />
+                                <path d="M115 310 h 42 v 8 h -12 v 6 h 12 v 10 h -42 z" fill="url(#brass-edge)" />
+                                
+                                <path d="M115 275 h 28 v 6 h -8 v 8 h 14 v 8 h -34 z" fill="url(#brass-main)" />
+                                <path d="M115 275 h 28 v 6 h -8 v 8 h 14 v 8 h -34 z" fill="url(#brass-edge)" />
+                                
+                                <circle cx="100" cy="80" r="65" fill="url(#brass-main)" />
+                                <circle cx="100" cy="80" r="65" fill="url(#brass-edge)" />
+                                
+                                <circle cx="100" cy="80" r="48" fill="#050505" filter="url(#inner-bevel)" />
+                                
+                                <circle cx="100" cy="80" r="34" fill="url(#brass-main)" />
+                                <circle cx="100" cy="80" r="34" fill="url(#brass-edge)" />
+                                <circle cx="100" cy="80" r="16" fill="#050505" filter="url(#inner-bevel)" />
+                            </svg>
+                            <div class="text-center mt-6">
+                                <span id="key-status-text" class="font-bold text-[10px] md:text-xs tracking-[2.5px] uppercase transition-colors duration-500 text-white/40">
+                                    HEAVY • PRECISION • YOURS
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ritual Controls -->
+                    <div class="flex-1 max-w-full md:max-w-[460px] pt-0 lg:pt-4 w-full">
+                        <div class="mb-8 md:mb-10">
+                            <div class="text-[10px] md:text-xs text-[#14B8A6] font-bold tracking-[2.5px] mb-1.5 uppercase">The Ritual</div>
+                            <div class="font-black text-2xl md:text-[29px] tracking-[-0.03em] leading-tight md:leading-none text-white">Hand the key.<br/>Receive the seal.</div>
+                        </div>
+
+                        <div class="space-y-8 md:space-y-10 w-full">
+                            <div class="w-full">
+                                <div class="text-[9px] md:text-[10px] font-bold text-white/50 tracking-[2px] mb-4 uppercase">When do you need relief?</div>
+                                <div class="grid grid-cols-2 gap-4 md:gap-8 w-full">
+                                    <div class="w-full">
+                                        <div class="text-[10px] md:text-xs text-white/40 mb-2 font-bold tracking-wider uppercase">Arrival</div>
+                                        <input type="date" id="arrival-input" value="2026-07-12" class="concierge-input w-full text-sm md:text-[17px] py-1 min-h-[44px]" />
+                                    </div>
+                                    <div class="w-full">
+                                        <div class="text-[10px] md:text-xs text-white/40 mb-2 font-bold tracking-wider uppercase">Departure</div>
+                                        <input type="date" id="departure-input" value="2026-07-15" class="concierge-input w-full text-sm md:text-[17px] py-1 min-h-[44px]" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="w-full">
+                                <div class="text-[9px] md:text-[10px] font-bold text-white/50 tracking-[2px] mb-4 uppercase">Who receives the key?</div>
+                                <input type="text" id="name-input" placeholder="YOUR NAME" value="CECY" class="concierge-input w-full text-base md:text-[19px] py-2 min-h-[44px]" />
+                            </div>
+
+                            <div class="flex items-baseline gap-x-3 pt-2 w-full">
+                                <div>
+                                    <span id="nights-display" class="font-black text-4xl md:text-[56px] tracking-[-0.045em] leading-none">3</span>
+                                    <span class="font-bold text-[10px] md:text-xs text-white/50 tracking-[1.5px] ml-1.5 uppercase">Nights</span>
+                                </div>
+                                <div class="text-[9px] md:text-[10px] text-[#14B8A6]/70 font-bold tracking-wider uppercase ml-auto">One Body • One Key</div>
+                            </div>
+
+                            <div class="pt-6 md:pt-8 border-t border-white/10 w-full">
+                                <button id="turn-key-btn" class="w-full min-h-[56px] flex items-center justify-center gap-x-3 bg-white hover:bg-[#14B8A6] active:bg-[#0F9A8A] text-black py-4 md:py-5 font-black tracking-[2px] text-[10px] md:text-xs uppercase transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <span>TURN THE KEY</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Confirmation Modal -->
+    <div id="confirmation-modal" class="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center p-4 md:p-6">
+        <div class="max-w-md w-full bg-[#050505] border border-white/10 p-6 md:p-9 premium-shadow relative">
+            <div class="text-center w-full">
+                <div class="mx-auto w-8 h-px bg-[#14B8A6] mb-5 md:mb-6"></div>
+                
+                <div class="font-black text-4xl md:text-5xl tracking-[-0.04em] mb-px text-white">THE SEAL</div>
+                <div class="text-[#14B8A6] text-[10px] md:text-xs font-bold tracking-[3px] uppercase">Is Engaged</div>
+                
+                <div class="my-8 md:my-9 space-y-px text-left max-w-[270px] mx-auto text-xs md:text-sm">
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50 font-bold uppercase tracking-wider">Key</span>
+                        <span class="font-medium tracking-wider text-white">#472</span>
+                    </div>
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50 font-bold uppercase tracking-wider">Arrival</span>
+                        <span id="modal-arrival" class="font-mono text-[10px] md:text-xs text-white"></span>
+                    </div>
+                    <div class="flex justify-between py-[9px] border-b border-white/10">
+                        <span class="text-white/50 font-bold uppercase tracking-wider">Departure</span>
+                        <span id="modal-departure" class="font-mono text-[10px] md:text-xs text-white"></span>
+                    </div>
+                    <div class="flex justify-between py-[9px]">
+                        <span class="text-white/50 font-bold uppercase tracking-wider">Nights</span>
+                        <span id="modal-nights" class="font-medium text-white"></span>
+                    </div>
+                </div>
+                
+                <div class="text-[10px] md:text-xs text-white/55 leading-tight mb-6 md:mb-8 font-medium">
+                    The door has sealed behind you.<br/>
+                    68° is now the only temperature that exists.
+                </div>
+                
+                <button id="close-modal-btn" class="w-full min-h-[56px] py-3.5 md:py-4 text-[10px] md:text-xs font-bold tracking-[2px] border border-white/30 text-white hover:bg-white hover:text-black transition-all duration-300 uppercase">
+                    Return to the quiet
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // Global State & References
+        const AppState = {
+            scrollProgress: 0,
+            nights: 3,
+            keyEngaged: false
+        };
+
+        const DOM = {
+            loaderScreen: document.getElementById('loader-screen'),
+            loaderProgress: document.getElementById('loader-progress'),
+            scrollSpacer: document.getElementById('scroll-spacer'),
+            scrollContent: document.getElementById('scroll-content'),
+            shaderContainer: document.getElementById('shader-container'),
+            arrivalInput: document.getElementById('arrival-input'),
+            departureInput: document.getElementById('departure-input'),
+            nightsDisplay: document.getElementById('nights-display'),
+            turnKeyBtn: document.getElementById('turn-key-btn'),
+            keySvg: document.getElementById('the-key-svg'),
+            keyStatusText: document.getElementById('key-status-text'),
+            modal: document.getElementById('confirmation-modal'),
+            closeModalBtn: document.getElementById('close-modal-btn'),
+            modalArrival: document.getElementById('modal-arrival'),
+            modalDeparture: document.getElementById('modal-departure'),
+            modalNights: document.getElementById('modal-nights'),
+            kineticTexts: document.querySelectorAll('.kinetic-text')
+        };
+
+        // Audio System (Restored Premium Functions)
+        function playKeyTurnSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.value = 58;
+                filter.type = 'bandpass';
+                filter.frequency.value = 380;
+                filter.Q.value = 3.5;
+                gain.gain.value = 0.045;
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.62);
+                
+                setTimeout(() => {
+                    osc.stop();
+                    ctx.close();
+                }, 680);
+            } catch(e) { console.warn("Audio Context restricted."); }
+        }
+
+        function playPremiumSealSound() {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                
+                osc.type = 'sine';
+                osc.frequency.value = 51; // Warm low pitch
+                filter.type = 'lowpass';
+                filter.frequency.value = 165; // Soft warm roll-off
+                gain.gain.value = 0.0001; // Start silent for smooth in
+                
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(ctx.destination);
+                
+                osc.start();
+                
+                // Smooth warm glow in
+                gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.38);
+                // Smooth warm glow out (long, gentle decay)
+                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.92);
+                
+                setTimeout(() => {
+                    osc.stop();
+                    ctx.close();
+                }, 2000);
+            } catch(e) { console.warn("Audio Context restricted."); }
+        }
+
+        // Keyboard Accessibility (Restored Functions)
+        function initKeyboard() {
+            document.addEventListener('keydown', (e) => {
+                // Key 'K' to engage key, only if scrolled to the right section roughly
+                if (e.key.toLowerCase() === 'k' && !AppState.keyEngaged && AppState.scrollProgress > 0.4) {
+                    e.preventDefault();
+                    DOM.turnKeyBtn.click();
+                }
+                
+                // Escape to close modal
+                if (e.key === 'Escape' && DOM.modal.classList.contains('is-active')) {
+                    e.preventDefault();
+                    DOM.closeModalBtn.click();
+                }
+            });
+        }
+
+        // 1. Initial Loading Sequence
+        function runLoader() {
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(interval);
+                    DOM.loaderProgress.style.width = '100%';
+                    setTimeout(() => {
+                        DOM.loaderScreen.style.transform = 'translateY(-100%)';
+                        DOM.loaderScreen.style.pointerEvents = 'none';
+                    }, 400);
+                } else {
+                    DOM.loaderProgress.style.width = `${progress}%`;
+                }
+            }, 50);
+        }
+
+        // 2. Smooth Scroll (Lenis mimic)
+        function initSmoothScroll() {
+            let currentY = window.scrollY;
+            let targetY = window.scrollY;
+            let rafId;
+            let lastTime = performance.now();
+            let animationFrameId;
+
+            const onResize = () => {
+                 if(DOM.scrollContent && DOM.scrollSpacer) {
+                     DOM.scrollSpacer.style.height = `${DOM.scrollContent.scrollHeight}px`;
+                 }
+            };
+
+            const resizeObserver = new ResizeObserver(() => {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = requestAnimationFrame(onResize);
+            });
+            resizeObserver.observe(DOM.scrollContent);
+
+            const onScroll = () => {
+                const maxScroll = Math.max(0, DOM.scrollContent.scrollHeight - window.innerHeight);
+                targetY = Math.max(0, Math.min(window.scrollY, maxScroll));
+            };
+
+            const lerp = (start, end, factor) => start + (end - start) * factor;
+
+            const update = (time) => {
+                const deltaTime = Math.min(time - lastTime, 32);
+                lastTime = time;
+
+                const damping = 0.08; 
+                const factor = 1 - Math.pow(1 - damping, deltaTime / 16.666);
+                
+                currentY = lerp(currentY, targetY, factor);
+                
+                if (Math.abs(targetY - currentY) < 0.05) {
+                    currentY = targetY;
+                }
+
+                const maxScroll = Math.max(0, DOM.scrollContent.scrollHeight - window.innerHeight);
+                if (maxScroll > 0) {
+                    AppState.scrollProgress = Math.max(0, Math.min(1, currentY / maxScroll));
+                } else {
+                    AppState.scrollProgress = 0;
+                }
+
+                DOM.scrollContent.style.transform = `translate3d(0, -${currentY}px, 0)`;
+                rafId = requestAnimationFrame(update);
+            };
+
+            window.addEventListener('scroll', onScroll, { passive: true });
+            rafId = requestAnimationFrame(update);
+        }
+
+        // 3. Three.js WebGL Shader Background
+        function initShader() {
+            if (!DOM.shaderContainer) return;
+
+            const scene = new THREE.Scene();
+            const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+            
+            const renderer = new THREE.WebGLRenderer({ 
+                alpha: true, 
+                antialias: false,
+                powerPreference: "high-performance",
+                stencil: false,
+                depth: false
+            });
+            
+            const dpr = Math.min(window.devicePixelRatio, 1.5); 
+            renderer.setPixelRatio(dpr);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            DOM.shaderContainer.appendChild(renderer.domElement);
+
+            const uniforms = {
+                uTime: { value: 0 },
+                uProgress: { value: 0 },
+                uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+            };
+
+            const vertexShader = `
+                varying vec2 vUv;
+                void main() {
+                    vUv = uv;
+                    gl_Position = vec4(position.xy, 0.0, 1.0);
+                }
+            `;
+
+            const fragmentShader = `
+                varying vec2 vUv;
+                uniform float uTime;
+                uniform float uProgress;
+                uniform vec2 uResolution;
+
+                #define MAX_STEPS 60
+                #define MAX_DIST 40.0
+                #define SURF_DIST 0.005
+
+                mat2 rot(float a) {
+                    float s = sin(a), c = cos(a);
+                    return mat2(c, -s, s, c);
+                }
+
+                float sdBox(vec3 p, vec3 b) {
+                    vec3 q = abs(p) - b;
+                    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+                }
+
+                float getDist(vec3 p) {
+                    vec3 bp = p;
+                    bp.y -= 0.5;
+                    bp.xy *= rot(uTime * 0.15);
+                    bp.xz *= rot(uTime * 0.1);
+
+                    float noise = sin(p.x * 2.5 + uTime * 1.5) * sin(p.y * 2.5 + uTime * 1.2) * sin(p.z * 2.5) * 0.3;
+                    float desert = length(p) - 1.2 + noise * (1.0 - uProgress);
+                    float box = sdBox(bp, vec3(0.8, 0.8, 0.8));
+
+                    float morph = smoothstep(0.2, 0.8, uProgress);
+                    return mix(desert, box, morph);
+                }
+
+                vec3 getNormal(vec3 p) {
+                    vec2 e = vec2(0.01, 0.0);
+                    vec3 n = getDist(p) - vec3(
+                        getDist(p - e.xyy),
+                        getDist(p - e.yxy),
+                        getDist(p - e.yyx)
+                    );
+                    return normalize(n);
+                }
+
+                void main() {
+                    vec2 uv = (vUv - 0.5) * 2.0;
+                    uv.x *= uResolution.x / uResolution.y;
+
+                    vec3 ro = mix(
+                        vec3(0.0, 0.0, 4.0), 
+                        vec3(2.0, 1.5, 3.0), 
+                        smoothstep(0.0, 1.0, uProgress)
+                    );
+                    
+                    vec3 target = vec3(0.0, 0.0, 0.0);
+                    vec3 f = normalize(target - ro);
+                    vec3 r = normalize(cross(vec3(0.0, 1.0, 0.0), f));
+                    vec3 u = cross(f, r);
+                    vec3 rd = normalize(uv.x * r + uv.y * u + 1.5 * f);
+
+                    float d0 = 0.0;
+                    for(int i=0; i<MAX_STEPS; i++) {
+                        vec3 p = ro + rd * d0;
+                        float dS = getDist(p);
+                        d0 += dS;
+                        if(d0 > MAX_DIST || abs(dS) < SURF_DIST) break;
+                    }
+
+                    vec3 bgDesert = vec3(0.97, 0.94, 0.89); 
+                    vec3 bgSanc = vec3(0.02, 0.02, 0.02);   
+                    vec3 bg = mix(bgDesert, bgSanc, uProgress);
+                    vec3 col = bg;
+
+                    if(d0 < MAX_DIST) {
+                        vec3 p = ro + rd * d0;
+                        vec3 n = getNormal(p);
+                        
+                        vec3 lightPos = mix(vec3(2.0, 4.0, 3.0), vec3(-2.0, 4.0, -3.0), uProgress);
+                        vec3 l = normalize(lightPos - p);
+                        float diff = max(dot(n, l), 0.0);
+                        
+                        vec3 desertLight = vec3(0.8, 0.6, 0.4); 
+                        vec3 desertDark = vec3(0.4, 0.3, 0.2);
+                        vec3 sancLight = vec3(0.08, 0.72, 0.65); 
+                        vec3 sancDark = vec3(0.04, 0.11, 0.10);
+
+                        float morph = smoothstep(0.2, 0.8, uProgress);
+                        vec3 matLight = mix(desertLight, sancLight, morph);
+                        vec3 matDark = mix(desertDark, sancDark, morph);
+
+                        col = mix(matDark, matLight, diff);
+
+                        float fresnel = pow(1.0 - max(dot(n, -rd), 0.0), 4.0);
+                        col += fresnel * matLight * 0.8;
+                        
+                        float ao = clamp(p.y * 0.5 + 0.5, 0.0, 1.0);
+                        col *= ao;
+
+                        col = mix(col, bg, 1.0 - exp(-0.02 * d0 * d0));
+                    }
+
+                    float noise = fract(sin(dot(uv, vec2(12.9898, 78.233))) * 43758.5453);
+                    col += noise * (mix(0.04, 0.015, uProgress));
+
+                    col = col / (col + vec3(1.0));
+                    col = pow(col, vec3(1.0/2.2));
+
+                    gl_FragColor = vec4(col, 1.0);
+                }
+            `;
+
+            const material = new THREE.ShaderMaterial({
+                uniforms,
+                depthWrite: false,
+                depthTest: false,
+                vertexShader,
+                fragmentShader
+            });
+
+            const geometry = new THREE.PlaneGeometry(2, 2);
+            const mesh = new THREE.Mesh(geometry, material);
+            scene.add(mesh);
+
+            const clock = new THREE.Clock();
+
+            const animate = () => {
+                requestAnimationFrame(animate);
+                uniforms.uTime.value = clock.getElapsedTime();
+                uniforms.uProgress.value = AppState.scrollProgress; // Direct bind to scroll progress
+                renderer.render(scene, camera);
+            };
+            animate();
+
+            const handleResize = () => {
+                const width = window.innerWidth;
+                const height = window.innerHeight;
+                renderer.setSize(width, height);
+                uniforms.uResolution.value.set(width, height);
+            };
+            window.addEventListener('resize', handleResize, { passive: true });
+        }
+
+        // 4. Kinetic Text Intersection Observer
+        function initKineticText() {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+                        // Prevent re-triggering
+                        observer.unobserve(entry.target); 
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            DOM.kineticTexts.forEach(el => observer.observe(el));
+        }
+
+        // 5. Form Logic (Dates & Nights)
+        function calculateNights() {
+            const start = new Date(DOM.arrivalInput.value);
+            const end = new Date(DOM.departureInput.value);
+            
+            if (start && end && end > start) {
+                AppState.nights = Math.ceil((end - start) / (1000 * 60 * 60 * 24));
+            } else {
+                AppState.nights = 0;
+            }
+            DOM.nightsDisplay.textContent = AppState.nights > 0 ? AppState.nights : '—';
+        }
+
+        function initForm() {
+            DOM.arrivalInput.addEventListener('change', calculateNights);
+            DOM.departureInput.addEventListener('change', calculateNights);
+            calculateNights(); // Initial calc
+        }
+
+        // 6. Ritual interaction (Key turn & Modal)
+        function initRitual() {
+            DOM.turnKeyBtn.addEventListener('click', () => {
+                if (AppState.keyEngaged) return;
+                
+                AppState.keyEngaged = true;
+                DOM.turnKeyBtn.disabled = true;
+                DOM.turnKeyBtn.innerHTML = '<span>ENGAGING...</span>';
+                
+                // Play audio function restored
+                playKeyTurnSound();
+                
+                DOM.keySvg.classList.add('key-turn');
+                DOM.keyStatusText.textContent = 'SEALED • HOLDING';
+                DOM.keyStatusText.classList.remove('text-white/40');
+                DOM.keyStatusText.classList.add('text-[#14B8A6]');
+
+                // Populate Modal Data
+                DOM.modalArrival.textContent = DOM.arrivalInput.value;
+                DOM.modalDeparture.textContent = DOM.departureInput.value;
+                DOM.modalNights.textContent = AppState.nights;
+
+                // Show modal after delay
+                setTimeout(() => {
+                    playPremiumSealSound(); // Restore deep seal audio
+                    DOM.modal.classList.add('is-active');
+                }, 1200);
+            });
+
+            DOM.closeModalBtn.addEventListener('click', () => {
+                DOM.modal.classList.remove('is-active');
+            });
+        }
+
+        // Boot Application
+        window.addEventListener('DOMContentLoaded', () => {
+            console.log('%c[THE VEIL] Bleeding-edge premium build — Nike × Sony color theory + buttery interactions. All functions preserved.', 'color:#14B8A6');
+            runLoader();
+            initSmoothScroll();
+            initShader();
+            initKineticText();
+            initForm();
+            initRitual();
+            initKeyboard(); // Restored keyboard commands
+        });
+    </script>
+</body>
 </html>
