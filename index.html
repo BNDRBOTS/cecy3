@@ -393,66 +393,6 @@
             kineticTexts: document.querySelectorAll('.kinetic-text')
         };
 
-        // Audio System (Restored Premium Functions)
-        function playKeyTurnSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
-                
-                osc.type = 'sawtooth';
-                osc.frequency.value = 58;
-                filter.type = 'bandpass';
-                filter.frequency.value = 380;
-                filter.Q.value = 3.5;
-                gain.gain.value = 0.045;
-                
-                osc.connect(filter);
-                filter.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.start();
-                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 0.62);
-                
-                setTimeout(() => {
-                    osc.stop();
-                    ctx.close();
-                }, 680);
-            } catch(e) { console.warn("Audio Context restricted."); }
-        }
-
-        function playPremiumSealSound() {
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator();
-                const gain = ctx.createGain();
-                const filter = ctx.createBiquadFilter();
-                
-                osc.type = 'sine';
-                osc.frequency.value = 51; // Warm low pitch
-                filter.type = 'lowpass';
-                filter.frequency.value = 165; // Soft warm roll-off
-                gain.gain.value = 0.0001; // Start silent for smooth in
-                
-                osc.connect(filter);
-                filter.connect(gain);
-                gain.connect(ctx.destination);
-                
-                osc.start();
-                
-                // Smooth warm glow in
-                gain.gain.linearRampToValueAtTime(0.12, ctx.currentTime + 0.38);
-                // Smooth warm glow out (long, gentle decay)
-                gain.gain.linearRampToValueAtTime(0.0001, ctx.currentTime + 1.92);
-                
-                setTimeout(() => {
-                    osc.stop();
-                    ctx.close();
-                }, 2000);
-            } catch(e) { console.warn("Audio Context restricted."); }
-        }
-
         // Keyboard Accessibility (Restored Functions)
         function initKeyboard() {
             document.addEventListener('keydown', (e) => {
@@ -763,9 +703,6 @@
                 DOM.turnKeyBtn.disabled = true;
                 DOM.turnKeyBtn.innerHTML = '<span>ENGAGING...</span>';
                 
-                // Play audio function restored
-                playKeyTurnSound();
-                
                 DOM.keySvg.classList.add('key-turn');
                 DOM.keyStatusText.textContent = 'SEALED • HOLDING';
                 DOM.keyStatusText.classList.remove('text-white/40');
@@ -778,7 +715,6 @@
 
                 // Show modal after delay
                 setTimeout(() => {
-                    playPremiumSealSound(); // Restore deep seal audio
                     DOM.modal.classList.add('is-active');
                 }, 1200);
             });
