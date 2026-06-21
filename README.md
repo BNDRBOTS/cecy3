@@ -1,2 +1,2 @@
-# Grok
-# Gemini v3
+# Grok [v2, v3]
+# Gemini [main]
